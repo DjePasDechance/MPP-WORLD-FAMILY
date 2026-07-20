@@ -263,7 +263,12 @@
   }
 
   /* TABLE */
-  table{width:100%;border-collapse:collapse;font-size:14.5px;}
+  .table-scroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    border-radius:10px;
+  }
+  table{width:100%;min-width:480px;border-collapse:collapse;font-size:14.5px;}
   thead th{
     text-align:left;
     font-family:'Space Mono',monospace;
@@ -340,6 +345,36 @@
   }
   footer p{color:#9fb6ab;font-size:13.5px;margin-top:8px;max-width:520px;margin-left:auto;margin-right:auto;}
   .tacos{margin-top:20px;font-family:'Space Mono';font-size:12.5px;color:var(--gold-bright);opacity:0.85;}
+  /* MOBILE */
+  @media(max-width:600px){
+    .wrap{padding:0 16px;}
+    .hero{padding:48px 0 34px;}
+    .hero h1{font-size:clamp(38px,12vw,60px);}
+    .hero .sub{font-size:14px;}
+    .crown-line{gap:6px;}
+    .crown-line span{font-size:11px;padding:5px 10px;}
+    section{padding:38px 0;}
+    .section-title{font-size:28px;}
+    .field-ball{font-size:26px;}
+    .field-ball.b2{font-size:20px;}
+    .podium-step{width:120px;padding:14px 8px 16px;}
+    .podium-step .name{font-size:17px;}
+    .podium-step .pts{font-size:13px;}
+    .podium-step .prize{font-size:10.5px;}
+    .p1{min-height:150px;}
+    .p2{min-height:120px;}
+    .p3{min-height:100px;}
+    .chart-card{padding:16px 10px;}
+    .recap-grid{gap:10px;}
+    .recap-item{padding:13px 14px;font-size:13px;}
+    table{min-width:420px;font-size:13px;}
+    thead th{padding:8px 8px;font-size:10px;}
+    tbody td{padding:9px 8px;}
+    .card{padding:18px;}
+    .surprise-item{padding:11px 14px;}
+  }
+
+
 </style>
 </head>
 <body class="stripes">
@@ -450,12 +485,14 @@
     <div class="wrap">
       <h2 class="section-title">📜 Classement complet</h2>
       <p class="section-desc">104 pronos, 8 sélectionneurs du dimanche, un seul trône.</p>
-      <table>
-        <thead>
-          <tr><th>#</th><th>Parieur</th><th style="text-align:right">Total points</th><th style="text-align:right">% résultats trouvés</th></tr>
-        </thead>
-        <tbody id="classement-body"></tbody>
-      </table>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Parieur</th><th style="text-align:right">Total points</th><th style="text-align:right">% résultats trouvés</th></tr>
+          </thead>
+          <tbody id="classement-body"></tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -629,6 +666,7 @@ totals.forEach(([name, pts], i) => {
 
 // Chart
 const ctx = document.getElementById('evoChart').getContext('2d');
+const isMobile = window.innerWidth <= 600;
 new Chart(ctx, {
   type: 'line',
   data: {
@@ -638,19 +676,27 @@ new Chart(ctx, {
       data: arr,
       borderColor: colors[name],
       backgroundColor: colors[name],
-      borderWidth: name === 'ESTELLE' ? 3.5 : 2,
-      pointRadius: 3.5,
-      pointHoverRadius: 6,
+      borderWidth: name === 'ESTELLE' ? 3.5 : (isMobile ? 1.5 : 2),
+      pointRadius: isMobile ? 2 : 3.5,
+      pointHoverRadius: isMobile ? 4 : 6,
       cubicInterpolationMode: 'monotone',
       tension: 0.45
     }))
   },
   options: {
     responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: isMobile ? 0.85 : 2.2,
     interaction: { mode: 'nearest', intersect: false },
     plugins: {
       legend: {
-        labels: { color: '#f4efe1', font: { family: 'Space Mono', size: 11 } }
+        position: isMobile ? 'bottom' : 'top',
+        labels: {
+          color: '#f4efe1',
+          font: { family: 'Space Mono', size: isMobile ? 9 : 11 },
+          boxWidth: isMobile ? 10 : 16,
+          padding: isMobile ? 8 : 10
+        }
       },
       tooltip: {
         titleFont: { family: 'Space Mono' },
@@ -658,8 +704,19 @@ new Chart(ctx, {
       }
     },
     scales: {
-      x: { ticks: { color: '#bcd2c5', font: { family: 'Space Mono', size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
-      y: { ticks: { color: '#bcd2c5', font: { family: 'Space Mono', size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+      x: {
+        ticks: {
+          color: '#bcd2c5',
+          font: { family: 'Space Mono', size: isMobile ? 8 : 10 },
+          maxRotation: isMobile ? 60 : 0,
+          minRotation: isMobile ? 60 : 0
+        },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      },
+      y: {
+        ticks: { color: '#bcd2c5', font: { family: 'Space Mono', size: isMobile ? 8 : 10 } },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      }
     }
   }
 });
